@@ -1,31 +1,37 @@
-const asyncHandler = require("express-async-handler");
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
+const asyncHandler = require('express-async-handler');
+const User = require('../models/User');
 
 const validateToken = asyncHandler(async (req, res, next) => {
-  console.log("🔐 Incoming Headers:", req.headers);
+  let token;
 
-  const authHeader = req.headers.authorization || req.headers.Authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    console.log("❌ No Bearer token found.");
-    res.status(401);
-    throw new Error("Not authorized, token missing");
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1]; // Get the token from the header
   }
 
-  const token = authHeader.split(" ")[1];
-  console.log("📦 Extracted Token:", token);
+  if (!token) {
+    res.status(401);
+    throw new Error('Not authorized');
+  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log("✅ Token decoded:", decoded);
-
-    req.user = decoded.user;
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    req.user = await User.findById(decoded.user.id).select('-password'); // Get user without password
     next();
-  } catch (err) {
-    console.log("❌ Token verification failed:", err.message);
+  } catch (error) {
     res.status(401);
-    throw new Error("Not authorized");
+    throw new Error('Not authorized');
   }
 });
 
-module.exports = validateToken;
+// Middleware to check if user is admin
+const isAdmin = asyncHandler(async (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next(); // User is admin, proceed
+  } else {
+    res.status(403);
+    throw new Error('Access denied, not an admin');
+  }
+});
+
+module.exports = { validateToken, isAdmin };
