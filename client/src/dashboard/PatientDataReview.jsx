@@ -4,6 +4,7 @@ import './PatientDataReview.css';
 
 const PatientDataReview = () => {
   const [patientData, setPatientData] = useState([]);
+  const [historicalData, setHistoricalData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState('week');
@@ -12,12 +13,17 @@ const PatientDataReview = () => {
     const fetchPatientData = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/patient/data/latest`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        setPatientData([response.data]);
+        const [latestResponse, historyResponse] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API_URL}/patient/data/latest`, {
+            headers: { Authorization: `Bearer ${token}` }
+          }),
+          axios.get(`${process.env.REACT_APP_API_URL}/patient/data`, {
+            headers: { Authorization: `Bearer ${token}` }
+          })
+        ]);
+        
+        setPatientData([latestResponse.data]);
+        setHistoricalData(historyResponse.data);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch patient data');
@@ -156,7 +162,7 @@ const PatientDataReview = () => {
               </tr>
             </thead>
             <tbody>
-              {patientData.map((data, index) => (
+              {historicalData.map((data, index) => (
                 <tr key={index}>
                   <td>{formatDate(data.createdAt)}</td>
                   <td>{data.bloodVolumePulse?.value || 'N/A'}</td>
