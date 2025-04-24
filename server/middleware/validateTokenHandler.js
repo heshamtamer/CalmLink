@@ -1,31 +1,31 @@
-const jwt = require('jsonwebtoken');
-const asyncHandler = require('express-async-handler');
-const User = require('../models/User');
+const asyncHandler = require("express-async-handler");
+const jwt = require("jsonwebtoken");
 
 const validateToken = asyncHandler(async (req, res, next) => {
-  let token;
+  console.log("🔐 Incoming Headers:", req.headers);
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-    token = req.headers.authorization.split(' ')[1]; // Get the token from the header
-    console.log('Token1:', token); // Log the token for debugging
-  }
+  const authHeader = req.headers.authorization || req.headers.Authorization;
 
-  if (!token) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    console.log("❌ No Bearer token found.");
     res.status(401);
-    throw new Error('Not authorized');
+    throw new Error("Not authorized, token missing");
   }
+
+  const token = authHeader.split(" ")[1];
+  console.log("📦 Extracted Token:", token);
 
   try {
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    console.log('Decoded:', decoded); // Log the decoded token for debugging
-    req.user = await User.findById(decoded.user.id).select('-password'); // Get user without password
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("✅ Token decoded:", decoded);
+
+    req.user = decoded.user;
     next();
-  } catch (error) {
+  } catch (err) {
+    console.log("❌ Token verification failed:", err.message);
     res.status(401);
-    throw new Error('Not authorized');
+    throw new Error("Not authorized");
   }
 });
 
-
-
-module.exports = { validateToken };
+module.exports = validateToken;
