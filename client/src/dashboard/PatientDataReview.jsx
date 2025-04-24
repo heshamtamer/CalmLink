@@ -5,6 +5,7 @@ import './PatientDataReview.css';
 const PatientDataReview = () => {
   const [patientData, setPatientData] = useState([]);
   const [historicalData, setHistoricalData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedTimeRange, setSelectedTimeRange] = useState('week');
@@ -23,7 +24,10 @@ const PatientDataReview = () => {
         ]);
         
         setPatientData([latestResponse.data]);
-        setHistoricalData(historyResponse.data);
+        const sortedData = historyResponse.data.sort((a, b) => 
+          new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setHistoricalData(sortedData);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch patient data');
@@ -33,6 +37,34 @@ const PatientDataReview = () => {
 
     fetchPatientData();
   }, []);
+
+  useEffect(() => {
+    const filterDataByTimeRange = () => {
+      const now = new Date();
+      let startDate;
+
+      switch (selectedTimeRange) {
+        case 'day':
+          startDate = new Date(now.setDate(now.getDate() - 1));
+          break;
+        case 'week':
+          startDate = new Date(now.setDate(now.getDate() - 7));
+          break;
+        case 'month':
+          startDate = new Date(now.setMonth(now.getMonth() - 1));
+          break;
+        default:
+          startDate = new Date(now.setDate(now.getDate() - 7));
+      }
+
+      const filtered = historicalData.filter(data => 
+        new Date(data.createdAt) >= startDate
+      );
+      setFilteredData(filtered);
+    };
+
+    filterDataByTimeRange();
+  }, [selectedTimeRange, historicalData]);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -82,9 +114,6 @@ const PatientDataReview = () => {
           <div className="metric-value">
             {patientData[0]?.bloodVolumePulse?.value || 'N/A'} BPM
           </div>
-          <div className="metric-timestamp">
-            Last updated: {patientData[0]?.bloodVolumePulse?.timestamp ? formatDate(patientData[0].bloodVolumePulse.timestamp) : 'N/A'}
-          </div>
         </div>
 
         <div className="metric-card">
@@ -94,9 +123,6 @@ const PatientDataReview = () => {
           </div>
           <div className="metric-value">
             {patientData[0]?.electrodermalActivity?.value || 'N/A'} µS
-          </div>
-          <div className="metric-timestamp">
-            Last updated: {patientData[0]?.electrodermalActivity?.timestamp ? formatDate(patientData[0].electrodermalActivity.timestamp) : 'N/A'}
           </div>
         </div>
 
@@ -108,9 +134,6 @@ const PatientDataReview = () => {
           <div className="metric-value">
             {patientData[0]?.respiration?.value || 'N/A'} RPM
           </div>
-          <div className="metric-timestamp">
-            Last updated: {patientData[0]?.respiration?.timestamp ? formatDate(patientData[0].respiration.timestamp) : 'N/A'}
-          </div>
         </div>
 
         <div className="metric-card">
@@ -120,9 +143,6 @@ const PatientDataReview = () => {
           </div>
           <div className="metric-value">
             {patientData[0]?.bodyTemperature?.value || 'N/A'} °C
-          </div>
-          <div className="metric-timestamp">
-            Last updated: {patientData[0]?.bodyTemperature?.timestamp ? formatDate(patientData[0].bodyTemperature.timestamp) : 'N/A'}
           </div>
         </div>
 
@@ -142,14 +162,11 @@ const PatientDataReview = () => {
               <span>Z:</span> {patientData[0]?.acceleration?.z || 'N/A'} m/s²
             </div>
           </div>
-          <div className="metric-timestamp">
-            Last updated: {patientData[0]?.acceleration?.timestamp ? formatDate(patientData[0].acceleration.timestamp) : 'N/A'}
-          </div>
         </div>
       </div>
 
       <div className="data-history">
-        <h2>Historical Data</h2>
+        <h2>Historical Data - Last {selectedTimeRange}</h2>
         <div className="history-table">
           <table>
             <thead>
@@ -162,7 +179,7 @@ const PatientDataReview = () => {
               </tr>
             </thead>
             <tbody>
-              {historicalData.map((data, index) => (
+              {filteredData.map((data, index) => (
                 <tr key={index}>
                   <td>{formatDate(data.createdAt)}</td>
                   <td>{data.bloodVolumePulse?.value || 'N/A'}</td>
