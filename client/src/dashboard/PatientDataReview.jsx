@@ -12,7 +12,7 @@ const PatientDataReview = () => {
     const fetchPatientData = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        const response = await axios.get('http://localhost:5000/api/patient/data', {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/patient/data`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
