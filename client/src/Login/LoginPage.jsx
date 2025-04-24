@@ -16,6 +16,7 @@ const LoginPage = () => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/users/login`, { email, password });
       localStorage.setItem("accessToken", response.data.accessToken); // Store the access token
+      console.log("Access Token:", response.data.accessToken); // Debugging line to check the token
       localStorage.setItem("username", response.data.username); // Store the username
       navigate("/dashboard"); // Redirect to the dashboard after successful login
     } catch (error) {
