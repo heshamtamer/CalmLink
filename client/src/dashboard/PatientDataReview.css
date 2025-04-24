@@ -1,0 +1,187 @@
+.patient-data-review {
+  padding: 2rem;
+  background-color: #f3f4f6;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.time-range-selector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.time-range-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  background-color: white;
+  color: #4b5563;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.time-range-btn:hover {
+  background-color: #f3f4f6;
+}
+
+.time-range-btn.active {
+  background-color: #312e81;
+  color: white;
+  border-color: #312e81;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+}
+
+.metric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.metric-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.metric-icon {
+  font-size: 1.5rem;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #312e81;
+  margin-bottom: 0.5rem;
+}
+
+.metric-timestamp {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.acceleration-values {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.acceleration-axis {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+}
+
+.acceleration-axis span {
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.data-history {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.data-history h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.history-table {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  font-weight: 600;
+  color: #4b5563;
+  background-color: #f9fafb;
+}
+
+tr:hover {
+  background-color: #f9fafb;
+}
+
+.loading, .error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  font-size: 1.125rem;
+  color: #4b5563;
+}
+
+.error {
+  color: #dc2626;
+}
+
+@media (max-width: 768px) {
+  .patient-data-review {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .time-range-selector {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .time-range-btn {
+    flex: 1;
+    text-align: center;
+  }
+} 

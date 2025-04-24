@@ -1,0 +1,144 @@
+.rehabilitation-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f3f4f6;
+  min-height: 100vh;
+}
+
+.rehabilitation-header {
+  margin-bottom: 2rem;
+  text-align: center;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: none;
+  border: none;
+  color: #312e81;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #312e81;
+  color: white;
+}
+
+.rehabilitation-header h1 {
+  font-size: 1.5rem;
+  color: #312e81;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.techniques-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.technique-card {
+  background-color: white;
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  border: 1px solid #e5e7eb;
+}
+
+.technique-card:hover {
+  transform: translateY(-2px);
+  border-color: #312e81;
+}
+
+.technique-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.technique-header h2 {
+  font-size: 1.25rem;
+  color: #312e81;
+  font-weight: 600;
+}
+
+.duration {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  background-color: #f3f4f6;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+}
+
+.technique-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.steps-section h3,
+.benefits-section h3 {
+  font-size: 1rem;
+  color: #312e81;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.steps-section ol {
+  padding-left: 1.5rem;
+  color: #6b7280;
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.steps-section li {
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.steps-section li::before {
+  content: "";
+  position: absolute;
+  left: -1.5rem;
+  top: 0.5rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #312e81;
+  border-radius: 50%;
+}
+
+.benefits-section {
+  background-color: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.benefits-section p {
+  color: #6b7280;
+  line-height: 1.6;
+  font-size: 0.875rem;
+} 
