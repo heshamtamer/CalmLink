@@ -6,46 +6,40 @@ const dotenv = require("dotenv").config();
 const cron = require("node-cron");
 const bodyParser = require("body-parser");
 
-
 // Connect to the database
 connectDb();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-// app.use(cors({
-//   origin: "*", // Set this to your frontend origin URL for better security
-//   methods: ["GET", "POST", "DELETE"],
-//   credentials: true,
-// }));
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
+// ✅ CORS configuration
+const allowedOrigins = ["*"];
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+}));
 
-  next();
-});
-app.use(express.json()); 
+// ✅ Preflight support
+app.options("*", cors());
+
+// Body parsers
+app.use(express.json());
 app.use(bodyParser.json());
 
-// Routes
+// ✅ Routes
 app.get('/', (req, res) => {
-  res.send('Hello, World!'); 
+  res.send('Hello, World!');
 });
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/patient", require("./routes/patientRoutes"));
 
-// Error handling middleware
+// ✅ Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send({ message: "Something went wrong!" });
 });
 
-
-
-// Start server
+// ✅ Start server
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
