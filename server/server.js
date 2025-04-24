@@ -15,9 +15,11 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: "*", // Set this to your frontend origin URL for better security
+  origin: process.env.FRONTEND_URL, // use your actual frontend URL here
+  credentials: true, // allow sending cookies if used
   methods: ["GET", "POST", "DELETE"]
 }));
+
 app.use(express.json()); 
 app.use(bodyParser.json());
 
