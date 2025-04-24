@@ -14,12 +14,21 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({
-  origin: process.env.FRONTEND_URL, // use your actual frontend URL here
-  credentials: true, // allow sending cookies if used
-  methods: ["GET", "POST", "DELETE"]
-}));
+// app.use(cors({
+//   origin: "*", // Set this to your frontend origin URL for better security
+//   methods: ["GET", "POST", "DELETE"],
+//   credentials: true,
+// }));
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
 
+  next();
+});
 app.use(express.json()); 
 app.use(bodyParser.json());
 
