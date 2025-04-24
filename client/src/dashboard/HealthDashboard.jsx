@@ -25,25 +25,25 @@ const HealthDashboard = () => {
   // Mock stress level - This will be replaced with actual model output later
   const stressLevel = "normal"; // Can be "normal" or "stressed"
 
-  // useEffect(() => {
-  //   const fetchPatientData = async () => {
-  //     try {
-  //       const token = localStorage.getItem('accessToken');
-  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/patient/data`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`
-  //         }
-  //       });
-  //       setPatientData(response.data[0]); // Get the most recent data
-  //       setLoading(false);
-  //     } catch (err) {
-  //       console.error('Failed to fetch patient data:', err);
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchPatientData = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/patient/data`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        setPatientData(response.data[0]); // Get the most recent data
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to fetch patient data:', err);
+        setLoading(false);
+      }
+    };
 
-  //   fetchPatientData();
-  // }, []);
+    fetchPatientData();
+  }, []);
 
   useEffect(() => {
     // Check stress level and show notification if stressed
@@ -240,7 +240,7 @@ const HealthDashboard = () => {
             <div className="metric-card">
               <div>
                 <p className="metric-label">Heart Rate</p>
-                <p className="metric-value">5</p>
+                <p className="metric-value">{userData.heartRate}</p>
               </div>
               <div className="metric-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -251,7 +251,7 @@ const HealthDashboard = () => {
             <div className="metric-card">
               <div>
                 <p className="metric-label">Temperature</p>
-                <p className="metric-value">37</p>
+                <p className="metric-value">{userData.temperature}</p>
               </div>
               <div className="metric-icon">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">

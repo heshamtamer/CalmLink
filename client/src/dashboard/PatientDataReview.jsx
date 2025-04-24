@@ -12,7 +12,6 @@ const PatientDataReview = () => {
     const fetchPatientData = async () => {
       try {
         const token = localStorage.getItem('accessToken');
-        console.log('Token:', token); // Debugging line to check the token
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/patient/data`, {
           headers: {
             Authorization: `Bearer ${token}`

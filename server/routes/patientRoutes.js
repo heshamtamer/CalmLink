@@ -5,7 +5,7 @@ const {
   getPatientData, 
   getLatestPatientData 
 } = require("../controllers/patientDataController");
-const validateToken  = require("../middleware/validateTokenHandler");
+const { validateToken } = require("../middleware/validateTokenHandler");
 
 // Apply token validation middleware to all routes
 router.use(validateToken);
