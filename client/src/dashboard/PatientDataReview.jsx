@@ -17,7 +17,7 @@ const PatientDataReview = () => {
             Authorization: `Bearer ${token}`
           }
         });
-        setPatientData(response.data);
+        setPatientData([response.data]);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch patient data');
