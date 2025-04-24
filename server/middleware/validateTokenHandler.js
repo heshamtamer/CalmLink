@@ -24,14 +24,6 @@ const validateToken = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Middleware to check if user is admin
-const isAdmin = asyncHandler(async (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
-    next(); // User is admin, proceed
-  } else {
-    res.status(403);
-    throw new Error('Access denied, not an admin');
-  }
-});
 
-module.exports = { validateToken, isAdmin };
+
+module.exports = { validateToken };
