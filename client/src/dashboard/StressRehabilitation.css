@@ -1,16 +1,17 @@
 .rehabilitation-container {
-  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 2rem;
   background-color: #f3f4f6;
   min-height: 100vh;
 }
 
 .rehabilitation-header {
+  display: flex;
+  align-items: center;
   margin-bottom: 2rem;
-  text-align: center;
   background-color: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 1.5rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
@@ -19,13 +20,12 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.5rem 1rem;
   background: none;
   border: none;
   color: #312e81;
   cursor: pointer;
   font-size: 1rem;
-  margin-bottom: 1rem;
-  padding: 0.5rem;
   border-radius: 0.5rem;
   transition: all 0.3s ease;
 }
@@ -33,6 +33,226 @@
 .back-button:hover {
   background-color: #312e81;
   color: white;
+}
+
+.start-screen {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.start-button {
+  margin-top: 2rem;
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  background-color: #312e81;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.start-button:hover {
+  background-color: #1e1b4b;
+  transform: translateY(-2px);
+}
+
+.technique-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  background-color: white;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.progress-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 1rem;
+}
+
+.progress-dot {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.progress-dot.completed {
+  background-color: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+.progress-dot.current {
+  border-color: #312e81;
+  background-color: #312e81;
+  color: white;
+}
+
+.video-container {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background-color: #f1f5f9;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.video-placeholder {
+  color: #64748b;
+  font-size: 1.2rem;
+}
+
+.technique-info {
+  background-color: #f8fafc;
+  padding: 2rem;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+}
+
+.description {
+  color: #6b7280;
+  margin: 1rem 0;
+  line-height: 1.6;
+  font-size: 1.1rem;
+}
+
+.timer-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  font-size: 1.8rem;
+  color: #312e81;
+  font-weight: 600;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.start-timer-button {
+  margin-left: auto;
+  padding: 0.5rem 1rem;
+  background-color: #312e81;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.start-timer-button:hover {
+  background-color: #1e1b4b;
+  transform: translateY(-2px);
+}
+
+.steps-container {
+  margin: 2rem 0;
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.steps-container h3 {
+  color: #312e81;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.steps-container ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.steps-container li {
+  padding: 0.75rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #4b5563;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.steps-container li:last-child {
+  border-bottom: none;
+}
+
+.steps-container li:before {
+  content: "•";
+  color: #312e81;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.retry-button,
+.next-button {
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.retry-button {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #4b5563;
+}
+
+.retry-button:hover {
+  background-color: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+.next-button {
+  background-color: #312e81;
+  color: white;
+  border: none;
+}
+
+.next-button:hover {
+  background-color: #1e1b4b;
+  transform: translateY(-2px);
 }
 
 .rehabilitation-header h1 {

@@ -1,54 +1,128 @@
-import React from 'react';
-import { ArrowLeft, Clock, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Clock, CheckCircle, Play, Pause, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './StressRehabilitation.css';
 
 const StressRehabilitation = () => {
   const navigate = useNavigate();
+  const [currentTechnique, setCurrentTechnique] = useState(-1);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [isActive, setIsActive] = useState(false);
+  const [completed, setCompleted] = useState([]);
+  const [isTimerStarted, setIsTimerStarted] = useState(false);
 
-  // Ordered techniques for stress rehabilitation
   const techniques = [
     {
-      id: 1,
-      name: "Deep Breathing Exercise",
-      duration: "5 minutes",
+      id: 0,
+      name: "Box Breathing",
+      duration: 60, // 1 minute
+      videoUrl: "https://www.youtube.com/embed/G25IR0c-Hj8",
+      description: "Inhale for 4 seconds → Hold 4 seconds → Exhale 4 seconds → Hold 4 seconds. Repeat for 4 full cycles to engage the parasympathetic system and lower heart-rate variability imbalances.",
       steps: [
-        "Find a quiet, comfortable place to sit or lie down",
-        "Close your eyes and place one hand on your belly",
-        "Inhale deeply through your nose for 4 seconds",
-        "Hold your breath for 4 seconds",
-        "Exhale slowly through your mouth for 6 seconds",
-        "Repeat for 5 minutes"
-      ],
-      benefits: "Reduces heart rate, lowers blood pressure, and promotes relaxation"
+        "Inhale for 4 seconds",
+        "Hold for 4 seconds",
+        "Exhale for 4 seconds",
+        "Hold for 4 seconds",
+        "Repeat for 4 full cycles"
+      ]
+    },
+    {
+      id: 1,
+      name: "5-4-3-2-1 Grounding",
+      duration: 30, // 30 seconds
+      videoUrl: "https://www.youtube.com/embed/pY0Ldqwmz_Q",
+      description: "This sensory redirect calms fight-or-flight activation by anchoring attention to the present.",
+      steps: [
+        "Name 5 things you can see",
+        "Name 4 things you can feel",
+        "Name 3 things you can hear",
+        "Name 2 things you can smell",
+        "Name 1 thing you can taste"
+      ]
     },
     {
       id: 2,
-      name: "Progressive Muscle Relaxation",
-      duration: "10 minutes",
+      name: "Shoulder Rolls",
+      duration: 10, // 10 seconds
+      videoUrl: "https://www.youtube.com/embed/CvW-Zq3NlkU",
+      description: "Roll your shoulders to release tension and improve mobility.",
       steps: [
-        "Start with your toes and work your way up",
-        "Tense each muscle group for 5 seconds",
-        "Release the tension and notice the difference",
-        "Move to the next muscle group",
-        "Continue until you've relaxed your entire body"
-      ],
-      benefits: "Reduces muscle tension and overall stress levels"
+        "Roll shoulders up",
+        "Roll shoulders back",
+        "Roll shoulders down",
+        "Roll shoulders forward",
+        "Repeat for 3 full cycles"
+      ]
     },
     {
       id: 3,
-      name: "Mindfulness Meditation",
-      duration: "15 minutes",
+      name: "Jaw Release",
+      duration: 10, // 10 seconds
+      videoUrl: "https://www.youtube.com/embed/oQsFSqDafOA",
+      description: "Release tension in your jaw to reduce stress and promote relaxation.",
       steps: [
-        "Sit in a comfortable position",
-        "Focus on your breath",
-        "When your mind wanders, gently bring it back",
-        "Observe your thoughts without judgment",
-        "Continue for 15 minutes"
-      ],
-      benefits: "Improves focus, reduces anxiety, and enhances emotional regulation"
+        "Open your jaw wide",
+        "Hold for a moment",
+        "Release and relax",
+        "Repeat for 3 full cycles"
+      ]
+    },
+    {
+      id: 4,
+      name: "Seal with a Positive Affirmation",
+      duration: 10, // 10 seconds
+      description: "Silently repeat: 'I am safe in this moment.' Breathe naturally, and then tap 'Done' to return to your dashboard.",
+      steps: [
+        "Silently repeat: 'I am safe in this moment.'",
+        "Breathe naturally"
+      ]
     }
   ];
+
+  useEffect(() => {
+    let interval = null;
+    if (isActive && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && isActive) {
+      setIsActive(false);
+    }
+    return () => clearInterval(interval);
+  }, [isActive, timeLeft]);
+
+  const startTechnique = (index) => {
+    setCurrentTechnique(index);
+    setTimeLeft(techniques[index].duration);
+    setIsActive(false);
+    setIsTimerStarted(false);
+  };
+
+  const startTimer = () => {
+    setIsActive(true);
+    setIsTimerStarted(true);
+  };
+
+  const retryTechnique = () => {
+    setTimeLeft(techniques[currentTechnique].duration);
+    setIsActive(false);
+    setIsTimerStarted(false);
+  };
+
+  const nextTechnique = () => {
+    setCompleted([...completed, currentTechnique]);
+    if (currentTechnique < techniques.length - 1) {
+      startTechnique(currentTechnique + 1);
+    } else {
+      navigate('/dashboard');
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="rehabilitation-container">
@@ -58,38 +132,84 @@ const StressRehabilitation = () => {
           Back to Dashboard
         </button>
         <h1>Stress Rehabilitation Techniques</h1>
-        <p className="subtitle">Follow these techniques in order to manage your stress effectively</p>
       </div>
 
-      <div className="techniques-list">
-        {techniques.map((technique) => (
-          <div key={technique.id} className="technique-card">
-            <div className="technique-header">
-              <h2>{technique.name}</h2>
-              <div className="duration">
-                <Clock size={16} />
-                <span>{technique.duration}</span>
+      {currentTechnique === -1 ? (
+        <div className="start-screen">
+          <h2>Welcome to Stress Rehabilitation</h2>
+          <p>This program will guide you through 4 techniques to help manage stress.</p>
+          <button className="start-button" onClick={() => startTechnique(0)}>
+            Start Program
+          </button>
+        </div>
+      ) : (
+        <div className="technique-screen">
+          <div className="progress-indicator">
+            {techniques.map((_, index) => (
+              <div key={index} className={`progress-dot ${completed.includes(index) ? 'completed' : ''} ${index === currentTechnique ? 'current' : ''}`}>
+                {completed.includes(index) && <CheckCircle size={16} />}
               </div>
-            </div>
+            ))}
+          </div>
+
+          <div className="video-container">
+            {currentTechnique !== -1 && techniques[currentTechnique].videoUrl ? (
+              <iframe
+                width="100%"
+                height="100%"
+                src={techniques[currentTechnique].videoUrl}
+                title={techniques[currentTechnique].name}
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            ) : (
+              <div className="video-placeholder">
+                Video Placeholder
+              </div>
+            )}
+          </div>
+
+          <div className="technique-info">
+            <h2>{techniques[currentTechnique].name}</h2>
+            <p className="description">{techniques[currentTechnique].description}</p>
             
-            <div className="technique-content">
-              <div className="steps-section">
-                <h3>Steps:</h3>
-                <ol>
-                  {technique.steps.map((step, index) => (
-                    <li key={index}>{step}</li>
-                  ))}
-                </ol>
-              </div>
-              
-              <div className="benefits-section">
-                <h3>Benefits:</h3>
-                <p>{technique.benefits}</p>
-              </div>
+            <div className="timer-container">
+              <Clock size={20} />
+              <span className="timer">{formatTime(timeLeft)}</span>
+              {!isTimerStarted && timeLeft === techniques[currentTechnique].duration && (
+                <button className="start-timer-button" onClick={startTimer}>
+                  <Play size={16} />
+                  Start Timer
+                </button>
+              )}
+            </div>
+
+            <div className="steps-container">
+              <h3>Steps:</h3>
+              <ul>
+                {techniques[currentTechnique].steps.map((step, index) => (
+                  <li key={index}>{step}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="controls">
+              {!isActive && timeLeft > 0 && timeLeft < techniques[currentTechnique].duration && (
+                <button className="retry-button" onClick={retryTechnique}>
+                  <RotateCcw size={16} />
+                  Retry
+                </button>
+              )}
+              {timeLeft === 0 && (
+                <button className="next-button" onClick={nextTechnique}>
+                  {currentTechnique === techniques.length - 1 ? 'Done' : 'Next'}
+                </button>
+              )}
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
