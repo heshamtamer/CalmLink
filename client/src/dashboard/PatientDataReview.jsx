@@ -112,7 +112,7 @@ const PatientDataReview = () => {
             <span className="metric-icon">❤️</span>
           </div>
           <div className="metric-value">
-            {patientData[0]?.bloodVolumePulse?.value || 'N/A'} BPM
+            {patientData[0]?.bloodVolumePulse?.value?.toFixed(2) || 'N/A'} BPM
           </div>
         </div>
 
@@ -122,7 +122,7 @@ const PatientDataReview = () => {
             <span className="metric-icon">⚡</span>
           </div>
           <div className="metric-value">
-            {patientData[0]?.electrodermalActivity?.value || 'N/A'} µS
+            {patientData[0]?.electrodermalActivity?.value?.toFixed(2) || 'N/A'} µS
           </div>
         </div>
 
@@ -132,7 +132,7 @@ const PatientDataReview = () => {
             <span className="metric-icon">🌬️</span>
           </div>
           <div className="metric-value">
-            {patientData[0]?.respiration?.value || 'N/A'} RPM
+            {patientData[0]?.respiration?.value?.toFixed(2) || 'N/A'} RPM
           </div>
         </div>
 
@@ -142,7 +142,7 @@ const PatientDataReview = () => {
             <span className="metric-icon">🌡️</span>
           </div>
           <div className="metric-value">
-            {patientData[0]?.bodyTemperature?.value || 'N/A'} °C
+            {patientData[0]?.bodyTemperature?.value?.toFixed(2) || 'N/A'} °C
           </div>
         </div>
 
@@ -153,13 +153,30 @@ const PatientDataReview = () => {
           </div>
           <div className="acceleration-values">
             <div className="acceleration-axis">
-              <span>X:</span> {patientData[0]?.acceleration?.x || 'N/A'} m/s²
+              <span>X:</span> {patientData[0]?.acceleration?.x?.toFixed(2) || 'N/A'} m/s²
             </div>
             <div className="acceleration-axis">
-              <span>Y:</span> {patientData[0]?.acceleration?.y || 'N/A'} m/s²
+              <span>Y:</span> {patientData[0]?.acceleration?.y?.toFixed(2) || 'N/A'} m/s²
             </div>
             <div className="acceleration-axis">
-              <span>Z:</span> {patientData[0]?.acceleration?.z || 'N/A'} m/s²
+              <span>Z:</span> {patientData[0]?.acceleration?.z?.toFixed(2) || 'N/A'} m/s²
+            </div>
+          </div>
+        </div>
+
+        <div className="metric-card stress-prediction">
+          <div className="metric-header">
+            <h3>Stress Level</h3>
+            <span className="metric-icon">😊</span>
+          </div>
+          <div className="stress-content">
+            <div className="stress-level">
+              Level: {patientData[0]?.stressPrediction?.prediction || 'N/A'}
+            </div>
+            <div className="stress-probabilities">
+              <div>Low: {(patientData[0]?.stressPrediction?.probability?.[0] * 100).toFixed(2)}%</div>
+              <div>Medium: {(patientData[0]?.stressPrediction?.probability?.[1] * 100).toFixed(2)}%</div>
+              <div>High: {(patientData[0]?.stressPrediction?.probability?.[2] * 100).toFixed(2)}%</div>
             </div>
           </div>
         </div>
@@ -176,16 +193,18 @@ const PatientDataReview = () => {
                 <th>EDA</th>
                 <th>Respiration</th>
                 <th>Temperature</th>
+                <th>Stress Level</th>
               </tr>
             </thead>
             <tbody>
               {filteredData.map((data, index) => (
                 <tr key={index}>
                   <td>{formatDate(data.createdAt)}</td>
-                  <td>{data.bloodVolumePulse?.value || 'N/A'}</td>
-                  <td>{data.electrodermalActivity?.value || 'N/A'}</td>
-                  <td>{data.respiration?.value || 'N/A'}</td>
-                  <td>{data.bodyTemperature?.value || 'N/A'}</td>
+                  <td>{data.bloodVolumePulse?.value?.toFixed(2) || 'N/A'}</td>
+                  <td>{data.electrodermalActivity?.value?.toFixed(2) || 'N/A'}</td>
+                  <td>{data.respiration?.value?.toFixed(2) || 'N/A'}</td>
+                  <td>{data.bodyTemperature?.value?.toFixed(2) || 'N/A'}</td>
+                  <td>{data.stressPrediction?.prediction || 'N/A'}</td>
                 </tr>
               ))}
             </tbody>

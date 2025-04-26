@@ -32,9 +32,15 @@ const patientDataSchema = mongoose.Schema({
     y: Number,
     z: Number,
     timestamp: Date,
+  },
+  
+  // Add the stress prediction data
+  stressPrediction: {
+    type: mongoose.Schema.Types.Mixed, // Flexible schema to store prediction result
+    default: null
   }
 }, {
   timestamps: true,
 });
 
-module.exports = mongoose.model("PatientData", patientDataSchema); 
+module.exports = mongoose.model("PatientData", patientDataSchema);

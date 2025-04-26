@@ -47,7 +47,9 @@ const HealthDashboard = () => {
 
   useEffect(() => {
     // Check stress level and show notification if stressed
-    if (stressLevel === "stressed") {
+    if (patientData?.stressPrediction?.prediction === 2 ||
+      patientData?.stressPrediction?.prediction === 1
+    ) {
       setShowStressNotification(true);
       setHasUnreadNotification(true);
       
@@ -79,10 +81,21 @@ const HealthDashboard = () => {
   const userData = {
     name: localStorage.getItem("username"),
     bloodPressure: "110/80",
-    heartRate: patientData?.bloodVolumePulse?.value ? `${patientData.bloodVolumePulse.value} bpm` : "N/A",
-    temperature: patientData?.bodyTemperature?.value ? `${patientData.bodyTemperature.value} °C` : "N/A",
-    respiration: patientData?.respiration?.value ? `${patientData.respiration.value} rpm` : "N/A",
-    stressLevel: stressLevel,
+    heartRate: patientData?.bloodVolumePulse?.value ? 
+      `${Number(patientData.bloodVolumePulse.value).toFixed(2)} bpm` : "N/A",
+    temperature: patientData?.bodyTemperature?.value ? 
+      `${Number(patientData.bodyTemperature.value).toFixed(2)} °C` : "N/A",
+    respiration: patientData?.respiration?.value ? 
+      `${Number(patientData.respiration.value).toFixed(2)} rpm` : "N/A",
+    stressLevel: patientData?.stressPrediction?.prediction !== undefined ? 
+      (() => {
+        switch(patientData.stressPrediction.prediction) {
+          case 0: return "Normal";
+          case 1: return "Medium";
+          case 2: return "High";
+          default: return "N/A";
+        }
+      })() : "N/A",
     bloodCount: "9,873/ml",
     appointments: [
       { type: "Breathing Exercises", date: "Dec 15, 2022", time: "10:30 am" },
@@ -146,6 +159,7 @@ const HealthDashboard = () => {
   const handleStressNotificationClick = () => {
     setShowStressNotification(false);
     setShowNotificationDropdown(false);
+    setHasUnreadNotification(false);
     navigate('/stress-rehabilitation');
   };
 

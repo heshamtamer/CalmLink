@@ -1,49 +1,99 @@
 const asyncHandler = require("express-async-handler");
 const PatientData = require("../models/PatientData");
+const axios = require("axios"); // For making internal requests
 
-// @desc Add new patient health data
+// @desc Add new patient health data with stress prediction
 // @route POST /api/patient/data
 // @access private
 const addPatientData = asyncHandler(async (req, res) => {
   const {
-    bloodVolumePulse,
-    electrodermalActivity,
-    respiration,
-    bodyTemperature,
-    acceleration
+    // Only accept stress model input parameters
+    EDA_mean, EDA_std, EDA_kurtosis,
+    HR_mean, HR_std, HR_rms,
+    TEMP_mean, TEMP_std, TEMP_rms,
+    BVP_mean, BVP_std, BVP_rms,
+    ACC_mag_mean, ACC_mag_std,
+    IBI_mean, IBI_std, IBI_rmssd
   } = req.body;
 
-  const patientData = await PatientData.create({
-    userId: req.user.id,
-    bloodVolumePulse: {
-      value: bloodVolumePulse,
-      timestamp: new Date()
-    },
-    electrodermalActivity: {
-      value: electrodermalActivity,
-      timestamp: new Date()
-    },
-    respiration: {
-      value: respiration,
-      timestamp: new Date()
-    },
-    bodyTemperature: {
-      value: bodyTemperature,
-      timestamp: new Date()
-    },
-    acceleration: {
-      x: acceleration?.x || 0,
-      y: acceleration?.y || 0,
-      z: acceleration?.z || 0,
-      timestamp: new Date()
-    }
-  });
+  try {
+    // Extract the auth token from the original request
+    const authToken = req.headers.authorization;
+    
+    // Prepare the stress model input
+    const stressModelInput = {
+      EDA_mean, EDA_std, EDA_kurtosis,
+      HR_mean, HR_std, HR_rms,
+      TEMP_mean, TEMP_std, TEMP_rms,
+      BVP_mean, BVP_std, BVP_rms,
+      ACC_mag_mean, ACC_mag_std,
+      IBI_mean, IBI_std, IBI_rmssd
+    };
 
-  if (patientData) {
-    res.status(201).json(patientData);
-  } else {
-    res.status(400);
-    throw new Error("Invalid patient data");
+    // Make a local API call to the stress prediction endpoint with the auth token
+    const stressPrediction = await axios.post(
+      `${req.protocol}://${req.get('host')}/api/stress/predict`,
+      stressModelInput,
+      {
+        headers: {
+          'Authorization': authToken, // Forward the authorization token
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    // Calculate acceleration magnitude components (if needed)
+    const accMag = ACC_mag_mean || 0;
+    const accX = accMag * 0.577; // Simple approximation, dividing magnitude by sqrt(3)
+    const accY = accMag * 0.577;
+    const accZ = accMag * 0.577;
+
+    // Create patient data record using the model input parameters
+    const patientData = await PatientData.create({
+      userId: req.user.id,
+      bloodVolumePulse: {
+        value: BVP_mean, // Use the mean BVP from model input
+        timestamp: new Date()
+      },
+      electrodermalActivity: {
+        value: EDA_mean, // Use the mean EDA from model input
+        timestamp: new Date()
+      },
+      respiration: {
+        value: HR_mean, // Use HR as a proxy for respiration, adjust as needed
+        timestamp: new Date()
+      },
+      bodyTemperature: {
+        value: TEMP_mean, // Use the mean TEMP from model input
+        timestamp: new Date()
+      },
+      acceleration: {
+        x: accX,
+        y: accY,
+        z: accZ,
+        timestamp: new Date()
+      },
+      // Store the stress prediction data
+      stressPrediction: stressPrediction.data
+    });
+
+    if (patientData) {
+      res.status(201).json({
+        patientData,
+        stressPrediction: stressPrediction.data
+      });
+    } else {
+      res.status(400);
+      throw new Error("Invalid patient data");
+    }
+  } catch (error) {
+    console.error("Error in addPatientData:", error.message);
+    if (error.response) {
+      console.error("Response error data:", error.response.data);
+      console.error("Response error status:", error.response.status);
+    }
+    res.status(500);
+    throw new Error(`Error processing patient data: ${error.message}`);
   }
 });
 
@@ -78,4 +128,4 @@ module.exports = {
   addPatientData,
   getPatientData,
   getLatestPatientData
-}; 
+};

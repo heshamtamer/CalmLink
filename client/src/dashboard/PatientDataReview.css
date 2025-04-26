@@ -184,4 +184,50 @@ tr:hover {
     flex: 1;
     text-align: center;
   }
+}
+
+.stress-prediction {
+  grid-column: span 2;
+}
+
+.stress-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stress-level {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+}
+
+.stress-probabilities {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.stress-probabilities div {
+  flex: 1;
+  text-align: center;
+  padding: 8px;
+  background-color: #f8f8f8;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.stress-probabilities div:nth-child(1) {
+  color: #4CAF50; /* Green for low stress */
+}
+
+.stress-probabilities div:nth-child(2) {
+  color: #FFC107; /* Yellow for medium stress */
+}
+
+.stress-probabilities div:nth-child(3) {
+  color: #F44336; /* Red for high stress */
 } 
