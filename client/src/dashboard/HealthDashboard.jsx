@@ -7,7 +7,7 @@ import './HealthDashboard.css';
 const HealthDashboard = () => {
   const [showStressAnalysis, setShowStressAnalysis] = useState(false);
   const [activeTrend, setActiveTrend] = useState('Heart Rate');
-  const [activeTimePeriod, setActiveTimePeriod] = useState('24h');
+  const [activeTimePeriod, setActiveTimePeriod] = useState('7d');
   const [showStressNotification, setShowStressNotification] = useState(false);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
   const [hasUnreadNotification, setHasUnreadNotification] = useState(false);
@@ -113,37 +113,7 @@ const HealthDashboard = () => {
     }
   };
 
-  // Function to get 24-hour stress data
-  const get24HourStressData = async () => {
-    try {
-      const token = localStorage.getItem('accessToken');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/patient/data`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      const now = new Date();
-      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      
-      return response.data
-        .filter(data => new Date(data.createdAt) >= oneDayAgo)
-        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-    } catch (err) {
-      console.error('Failed to fetch 24-hour stress data:', err);
-      return [];
-    }
-  };
-
   const [hourlyStressData, setHourlyStressData] = useState([]);
-
-  useEffect(() => {
-    const fetchHourlyData = async () => {
-      const data = await get24HourStressData();
-      setHourlyStressData(data);
-    };
-    fetchHourlyData();
-  }, []);
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -390,9 +360,6 @@ const HealthDashboard = () => {
             <div className="welcome-text">
               <p className="welcome-greeting">Welcome back, <span className="user-name">{userData.name}</span></p>
               <p className="welcome-message">Let's focus on your recovery journey</p>
-              <button className="connect-button">
-                View Rehabilitation Plan
-              </button>
             </div>
             <div className="doctor-illustration">
               <div className="doctor-figure">
@@ -445,24 +412,17 @@ const HealthDashboard = () => {
           </div>
 
           {/* Stress Level Analysis */}
-            <div className={`stress-analysis ${showStressAnalysis ? 'show' : ''}`}>
-              <div className="stress-header">
-                <h2 className="section-title">Stress Level Analysis</h2>
-                <div className="stress-tabs">
-                  <button 
-                    className={`stress-tab ${activeTimePeriod === '24h' ? 'active' : ''}`}
-                    onClick={() => setActiveTimePeriod('24h')}
-                  >
-                    Last 24 Hours
-                  </button>
-                  <button 
-                    className={`stress-tab ${activeTimePeriod === '7d' ? 'active' : ''}`}
-                    onClick={() => setActiveTimePeriod('7d')}
-                  >
-                    Last 7 Days
-                  </button>
-                </div>
+          <div className={`stress-analysis ${showStressAnalysis ? 'show' : ''}`}>
+            <div className="stress-header">
+              <h2 className="section-title">Stress Level Analysis</h2>
+              <div className="stress-tabs">
+                <button 
+                  className={`stress-tab active`}
+                >
+                  Last 7 Days
+                </button>
               </div>
+            </div>
 
             {/* Weekly Stress Statistics */}
             <div className="weekly-stress-stats">
@@ -471,66 +431,45 @@ const HealthDashboard = () => {
                 <div className="stat-item">
                   <span className="stat-label">Current Status: {getStressStatus()}</span>
                 </div>
-                </div>
               </div>
+            </div>
 
-              <div className="stress-graph-container">
-                {/* Y-axis labels */}
-                <div className="stress-bars-wrapper">
-                  <div className="stress-level-labels">
+            <div className="stress-graph-container">
+              {/* Y-axis labels */}
+              <div className="stress-bars-wrapper">
+                <div className="stress-level-labels">
                   <span>High</span>
                   <span>Medium</span>
                   <span>Normal</span>
-                  </div>
+                </div>
 
                 {/* Add vertical axis line */}
                 <div className="stress-level-axis"></div>
 
-                  {/* Stress level bars */}
-                  <div className="stress-bars">
-                    {activeTimePeriod === '24h' ? (
-                    hourlyStressData.map((data, index) => (
-                      <div 
-                        key={index}
-                        className="stress-bar"
-                        style={{ 
-                          height: `${(data.stressPrediction?.prediction + 1) * 33.33}%`,
-                          backgroundColor: getStressLevelColor(data.stressPrediction?.prediction)
-                        }}
-                      ></div>
-                    ))
-                  ) : (
-                    weeklyStressData.map((data, index) => (
-                      <div 
-                        key={index}
-                        className={`stress-bar ${!data.hasData ? 'no-data' : ''}`}
-                        style={{ 
-                          height: data.hasData ? `${(data.stressLevel + 1) * 33.33}%` : '10%',
-                          backgroundColor: data.hasData ? getStressLevelColor(data.stressLevel) : '#e5e7eb'
-                        }}
-                      ></div>
-                    ))
-                    )}
-                  </div>
+                {/* Stress level bars */}
+                <div className="stress-bars">
+                  {weeklyStressData.map((data, index) => (
+                    <div 
+                      key={index}
+                      className={`stress-bar ${!data.hasData ? 'no-data' : ''}`}
+                      style={{ 
+                        height: data.hasData ? `${(data.stressLevel + 1) * 33.33}%` : '10%',
+                        backgroundColor: data.hasData ? getStressLevelColor(data.stressLevel) : '#e5e7eb'
+                      }}
+                    ></div>
+                  ))}
+                </div>
 
                 {/* Add horizontal axis line */}
                 <div className="stress-time-axis"></div>
 
-                  {/* X-axis labels */}
-                  <div className="stress-time-labels">
-                    {activeTimePeriod === '24h' ? (
-                    hourlyStressData.map((data, index) => (
-                      <span key={index}>
-                        {new Date(data.createdAt).toLocaleTimeString([], { hour: '2-digit' })}
-                      </span>
-                    ))
-                  ) : (
-                    weeklyStressData.map((data, index) => (
-                      <span key={index} className={!data.hasData ? 'no-data' : ''}>
-                        {data.dayName}
-                      </span>
-                    ))
-                  )}
+                {/* X-axis labels */}
+                <div className="stress-time-labels">
+                  {weeklyStressData.map((data, index) => (
+                    <span key={index} className={!data.hasData ? 'no-data' : ''}>
+                      {data.dayName}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>

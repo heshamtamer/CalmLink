@@ -29,28 +29,18 @@ const LoginPage = () => {
       {/* Left side with image and branding */}
       <div className="login-brand-section">
         <div className="logo-container">
-          <div className="logo">
-            <span>+</span>
-          </div>
+
         </div>
-        <h1 className="brand-title">Healthcare Dashboard</h1>
+        <h1 className="brand-title">CalmLink</h1>
         <p className="brand-description">
-          Take control of your health data with our secure and easy-to-use healthcare platform.
-        </p>
+          Connects your body's signals to your mind's well-being.</p>
         
         {/* Doctor illustration - simplified */}
         <div className="illustration-container">
-          <div className="doctor-illustration">
-            <div className="doctor-body"></div>
-          </div>
-          {/* Pills and circles decorations */}
-          <div className="decoration pill"></div>
-          <div className="decoration circle circle-1"></div>
-          <div className="decoration circle circle-2"></div>
-          <div className="decoration circle circle-3"></div>
+          <img src="https://cdn-icons-png.flaticon.com/512/3591/3591288.png" alt="Doctor Icon" className="doctor-icon-image" />
         </div>
         
-        <p className="copyright">© 2022 Healthcare Services. All rights reserved.</p>
+        <p className="copyright">© 2025 CalmLink. All rights reserved.</p>
       </div>
       
       {/* Right side with login form */}

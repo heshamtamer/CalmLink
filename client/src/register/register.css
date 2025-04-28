@@ -280,7 +280,7 @@
 .register-button {
   width: 100%;
   padding: 0.75rem;
-  background-color: #3b82f6;
+  background-color: #312e81;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -291,7 +291,7 @@
 }
 
 .register-button:hover {
-  background-color: #2563eb;
+  background-color: #1e1b4b;
 }
 
 .register-button:focus {
@@ -307,13 +307,13 @@
 }
 
 .signin-link {
-  color: #3b82f6;
+  color: #4f46e5;
   text-decoration: none;
   font-weight: 500;
 }
 
 .signin-link:hover {
-  text-decoration: underline;
+  color: #4338ca;
 }
 
 .error-message {
