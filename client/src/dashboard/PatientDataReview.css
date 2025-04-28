@@ -7,8 +7,48 @@
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 2rem;
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  color: #4b5563;
+  font-size: 0.875rem;
+  padding: 0.625rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  width: fit-content;
+}
+
+.back-button:hover {
+  background-color: #312e81;
+  border-color: #312e81;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.back-button:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.back-button span {
+  font-weight: 500;
+  line-height: 1;
 }
 
 .page-title {

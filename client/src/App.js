@@ -5,6 +5,7 @@ import HealthDashboard from "./dashboard/HealthDashboard";
 import Register from "./register/register";
 import StressRehabilitation from './dashboard/StressRehabilitation';
 import PatientDataReview from './dashboard/PatientDataReview';
+import StressChecklist from './checklist/StressChecklist';
 import './App.css';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path="/dashboard" element={<HealthDashboard />} />
         <Route path="/stress-rehabilitation" element={<StressRehabilitation />} />
         <Route path="/patient-data" element={<PatientDataReview />} />
+        <Route path="/checklist" element={<StressChecklist />} />
       </Routes>
     </Router>
   );

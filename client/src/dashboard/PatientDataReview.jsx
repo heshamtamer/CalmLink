@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import './PatientDataReview.css';
 
 const PatientDataReview = () => {
+  const navigate = useNavigate();
   const [patientData, setPatientData] = useState([]);
   const [historicalData, setHistoricalData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -82,7 +85,16 @@ const PatientDataReview = () => {
   return (
     <div className="patient-data-review">
       <div className="header">
-        <h1 className="page-title">Patient Health Data Review</h1>
+        <div className="header-left">
+          <button 
+            className="back-button"
+            onClick={() => navigate('/dashboard')}
+          >
+            <ArrowLeft size={20} />
+            <span>Back to Dashboard</span>
+          </button>
+          <h1 className="page-title">Patient Health Data Review</h1>
+        </div>
         <div className="time-range-selector">
           <button 
             className={`time-range-btn ${selectedTimeRange === 'day' ? 'active' : ''}`}
@@ -171,7 +183,14 @@ const PatientDataReview = () => {
           </div>
           <div className="stress-content">
             <div className="stress-level">
-              Level: {patientData[0]?.stressPrediction?.prediction || 'N/A'}
+              Level: {(() => {
+                switch(patientData[0]?.stressPrediction?.prediction) {
+                  case 0: return "Normal";
+                  case 1: return "Medium";
+                  case 2: return "High";
+                  default: return "N/A";
+                }
+              })()}
             </div>
             <div className="stress-probabilities">
               <div>Low: {(patientData[0]?.stressPrediction?.probability?.[0] * 100).toFixed(2)}%</div>

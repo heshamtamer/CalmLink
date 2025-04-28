@@ -71,10 +71,13 @@ const StressRehabilitation = () => {
       id: 4,
       name: "Seal with a Positive Affirmation",
       duration: 10, // 10 seconds
-      description: "Silently repeat: 'I am safe in this moment.' Breathe naturally, and then tap 'Done' to return to your dashboard.",
+      description: "Take a moment to center yourself with these empowering affirmations. Breathe deeply and repeat: 'I am strong, capable, and in control of my well-being. Each breath I take brings me peace and clarity. I choose to embrace calmness and resilience in this moment.'",
       steps: [
-        "Silently repeat: 'I am safe in this moment.'",
-        "Breathe naturally"
+        "Take a deep breath in",
+        "Hold the breath for a moment",
+        "Exhale slowly",
+        "Repeat the affirmation with each breath",
+        "Feel the positive energy flowing through you"
       ]
     }
   ];
@@ -153,7 +156,7 @@ const StressRehabilitation = () => {
           </div>
 
           <div className="video-container">
-            {currentTechnique !== -1 && techniques[currentTechnique].videoUrl ? (
+            {currentTechnique !== -1 && techniques[currentTechnique].videoUrl && currentTechnique !== 4 ? (
               <iframe
                 width="100%"
                 height="100%"
@@ -163,6 +166,13 @@ const StressRehabilitation = () => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
+            ) : currentTechnique === 4 ? (
+              <div className="affirmation-container">
+                <div className="affirmation-icon">✨</div>
+                <p className="affirmation-text">
+                  "I am strong, capable, and in control of my well-being. Each breath I take brings me peace and clarity. I choose to embrace calmness and resilience in this moment."
+                </p>
+              </div>
             ) : (
               <div className="video-placeholder">
                 Video Placeholder

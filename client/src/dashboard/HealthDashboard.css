@@ -688,140 +688,100 @@
   }
   
   .stress-graph-container {
-    height: 12rem;
+    height: 300px;
     position: relative;
     margin: 2rem 0;
-    padding: 0 1rem;
+    padding: 0 2rem 2rem 4rem;
   }
   
   .stress-bars-wrapper {
     position: relative;
     height: 100%;
-    margin-left: 3rem;
-    margin-bottom: 2rem;
-  }
-  
-  .stress-bars {
     display: flex;
-    height: 100%;
-    align-items: flex-end;
-    gap: 0.25rem;
-    position: relative;
-  }
-  
-  /* Adjust gap for 7-day view */
-  .stress-bars:has(> div:nth-child(-n+7)) {
-    gap: 1rem;
-  }
-  
-  .stress-bar {
-    flex: 1;
-    min-width: 0.5rem;
-    border-radius: 0.25rem;
-    transition: height 0.3s ease;
-  }
-  
-  .stress-bar.low {
-    background-color: #10b981;
-  }
-  
-  .stress-bar.moderate {
-    background-color: #f59e0b;
-  }
-  
-  .stress-bar.high {
-    background-color: #ef4444;
-  }
-  
-  .stress-time-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.75rem;
-    color: #6b7280;
-    position: absolute;
-    bottom: -1.5rem;
-    left: 0;
-    right: 0;
+    flex-direction: column;
   }
   
   .stress-level-labels {
     position: absolute;
-    left: -3rem;
+    left: -4rem;
     top: 0;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    font-size: 0.75rem;
-    color: #6b7280;
-    text-align: right;
-    padding-right: 0.5rem;
+    padding: 1rem 0;
+    color: #666;
+    font-size: 12px;
   }
   
-  .activity-impact {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e5e7eb;
-  }
-  
-  .activity-bars {
+  .stress-bars {
     display: flex;
-    height: 2rem;
+    height: calc(100% - 2rem);
     align-items: flex-end;
-    gap: 0.5rem;
-    padding: 0 1rem;
-    margin-bottom: 1rem;
+    gap: 8px;
+    padding: 1rem 0;
+    justify-content: space-between;
   }
   
-  .activity-bar {
+  .stress-bar {
     flex: 1;
-    height: 0.5rem;
-    border-radius: 0.25rem;
+    min-width: 30px;
+    border-radius: 4px 4px 0 0;
+    transition: height 0.3s ease;
   }
   
-  .activity-bar.work {
-    background-color: #9333ea;
+  .stress-bar.no-data {
+    opacity: 0.5;
   }
   
-  .activity-bar.screen {
-    background-color: #f97316;
-  }
-  
-  .activity-bar.mindfulness {
-    background-color: #3b82f6;
-  }
-  
-  .activity-legend {
+  .stress-time-labels {
+    position: absolute;
+    bottom: -2rem;
+    left: 0;
+    right: 0;
     display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 0.5rem;
-    font-size: 0.75rem;
-    color: #6b7280;
+    justify-content: space-between;
+    padding: 0 4px;
+    color: #666;
+    font-size: 12px;
   }
   
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+  .stress-time-labels span.no-data {
+    color: #9ca3af;
   }
   
-  .legend-color {
-    width: 1rem;
-    height: 0.5rem;
-    border-radius: 0.25rem;
+  .stress-level-axis {
+    position: absolute;
+    left: -1rem;
+    top: 1rem;
+    bottom: 1rem;
+    width: 1px;
+    background-color: #e5e7eb;
   }
   
-  .legend-color.work {
-    background-color: #9333ea;
+  .stress-time-axis {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background-color: #e5e7eb;
   }
   
-  .legend-color.screen {
-    background-color: #f97316;
-  }
-  
+  /* Remove activity impact related styles */
+  .activity-impact,
+  .activity-bars,
+  .activity-bar,
+  .activity-bar.work,
+  .activity-bar.screen,
+  .activity-bar.mindfulness,
+  .activity-legend,
+  .legend-item,
+  .legend-color,
+  .legend-color.work,
+  .legend-color.screen,
   .legend-color.mindfulness {
-    background-color: #3b82f6;
+    display: none;
   }
   
   .stress-summary {
@@ -878,4 +838,116 @@
       transform: translateX(0);
       opacity: 1;
     }
+  }
+
+  .weekly-stress-stats {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .weekly-stress-stats h3 {
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .stat-label {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .stat-value {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .stat-bar {
+    height: 8px;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+
+  .stress-status {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .stress-status h4 {
+    margin: 0;
+    color: #333;
+  }
+
+  /* Tasks Progress Circle */
+  .tasks-progress-section {
+    margin-top: 2rem;
+  }
+
+  .progress-circle-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+  }
+
+  .progress-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+
+  .progress-circle-inner {
+    width: 100px;
+    height: 100px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+  }
+
+  .progress-text {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .progress-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+
+  /* Remove old medications styles */
+  .medications-section,
+  .medication-item,
+  .medication-icon,
+  .pill-icon,
+  .capsule-icon,
+  .medication-details,
+  .medication-name,
+  .medication-instruction {
+    display: none;
   }

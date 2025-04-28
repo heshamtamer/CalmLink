@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Calendar, Clock, Home, User, Settings, FileText, Search, Bell, LogOut, Activity } from 'lucide-react';
+import { Calendar, Clock, Home, User, Settings, FileText, Search, Bell, LogOut, Activity, CheckSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './HealthDashboard.css'; 
@@ -13,6 +13,8 @@ const HealthDashboard = () => {
   const [hasUnreadNotification, setHasUnreadNotification] = useState(false);
   const [patientData, setPatientData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const [totalTasks, setTotalTasks] = useState(0);
   const navigate = useNavigate();
   const notificationTimeout = useRef(null);
   const currentDate = new Date();
@@ -24,6 +26,124 @@ const HealthDashboard = () => {
 
   // Mock stress level - This will be replaced with actual model output later
   const stressLevel = "normal"; // Can be "normal" or "stressed"
+
+  const [weeklyStressData, setWeeklyStressData] = useState([]);
+
+  useEffect(() => {
+    const fetchWeeklyData = async () => {
+      try {
+        const token = localStorage.getItem('accessToken');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/patient/data`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        
+        const now = new Date();
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        
+        // Create an array of all days in the week
+        const allDays = [];
+        for (let i = 6; i >= 0; i--) {
+          const date = new Date(now);
+          date.setDate(date.getDate() - i);
+          allDays.push({
+            date: date.toLocaleDateString(),
+            dayName: date.toLocaleDateString([], { weekday: 'short' }),
+            stressLevel: 0,
+            hasData: false
+          });
+        }
+        
+        // Filter and group data by day
+        const weeklyData = response.data
+          .filter(data => new Date(data.createdAt) >= oneWeekAgo)
+          .reduce((acc, data) => {
+            const date = new Date(data.createdAt).toLocaleDateString();
+            if (!acc[date]) {
+              acc[date] = {
+                date,
+                stressLevel: data.stressPrediction?.prediction || 0,
+                count: 1,
+                hasData: true
+              };
+            } else {
+              // Average the stress level for the day
+              acc[date].stressLevel = (acc[date].stressLevel * acc[date].count + (data.stressPrediction?.prediction || 0)) / (acc[date].count + 1);
+              acc[date].count++;
+            }
+            return acc;
+          }, {});
+        
+        // Merge actual data with all days
+        const mergedData = allDays.map(day => {
+          if (weeklyData[day.date]) {
+            return {
+              ...day,
+              stressLevel: weeklyData[day.date].stressLevel,
+              hasData: true
+            };
+          }
+          return day;
+        });
+        
+        setWeeklyStressData(mergedData);
+      } catch (err) {
+        console.error('Failed to fetch weekly stress data:', err);
+      }
+    };
+
+    fetchWeeklyData();
+  }, []);
+
+  // Function to get stress status based on weekly stats
+  const getStressStatus = () => {
+    if (weeklyStressData.length > 0 && weeklyStressData[weeklyStressData.length - 1].stressLevel > 4) return "High Stress";
+    if (weeklyStressData.length > 0 && weeklyStressData[weeklyStressData.length - 1].stressLevel > 2) return "Normal Stress";
+    return "Low Stress";
+  };
+
+  // Function to get stress level color
+  const getStressLevelColor = (level) => {
+    switch(level) {
+      case 0: return '#4CAF50'; // Green for normal
+      case 1: return '#FFC107'; // Yellow for medium
+      case 2: return '#F44336'; // Red for high
+      default: return '#9E9E9E'; // Grey for unknown
+    }
+  };
+
+  // Function to get 24-hour stress data
+  const get24HourStressData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/patient/data`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      const now = new Date();
+      const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      
+      return response.data
+        .filter(data => new Date(data.createdAt) >= oneDayAgo)
+        .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    } catch (err) {
+      console.error('Failed to fetch 24-hour stress data:', err);
+      return [];
+    }
+  };
+
+  const [hourlyStressData, setHourlyStressData] = useState([]);
+
+  useEffect(() => {
+    const fetchHourlyData = async () => {
+      const data = await get24HourStressData();
+      setHourlyStressData(data);
+    };
+    fetchHourlyData();
+  }, []);
 
   useEffect(() => {
     const fetchPatientData = async () => {
@@ -47,9 +167,20 @@ const HealthDashboard = () => {
 
   useEffect(() => {
     // Check stress level and show notification if stressed
-    if (patientData?.stressPrediction?.prediction === 2 ||
-      patientData?.stressPrediction?.prediction === 1
-    ) {
+    if (patientData?.stressPrediction?.prediction === 2) {
+      setShowStressNotification(true);
+      setHasUnreadNotification(true);
+      
+      // Clear any existing timeout
+      if (notificationTimeout.current) {
+        clearTimeout(notificationTimeout.current);
+      }
+      
+      // Set new timeout to hide notification after 5 seconds
+      notificationTimeout.current = setTimeout(() => {
+        setShowStressNotification(false);
+      }, 5000);
+    } else if (patientData?.stressPrediction?.prediction === 1) {
       setShowStressNotification(true);
       setHasUnreadNotification(true);
       
@@ -70,7 +201,38 @@ const HealthDashboard = () => {
         clearTimeout(notificationTimeout.current);
       }
     };
-  }, [stressLevel]);
+  }, [patientData?.stressPrediction?.prediction]);
+
+  useEffect(() => {
+    // Load completed tasks from localStorage
+    const loadCompletedTasks = () => {
+      const stressLevel = localStorage.getItem('weeklyStressLevel') || 'normal';
+      const savedItems = localStorage.getItem(`completedItems_${stressLevel}`);
+      const lastResetDate = localStorage.getItem('lastResetDate');
+      const today = new Date().toDateString();
+
+      // Reset tasks if it's a new day
+      if (lastResetDate !== today) {
+        localStorage.setItem('lastResetDate', today);
+        localStorage.removeItem(`completedItems_${stressLevel}`);
+        setCompletedTasks([]);
+      } else if (savedItems) {
+        setCompletedTasks(JSON.parse(savedItems));
+      } else {
+        setCompletedTasks([]);
+      }
+      
+      // Set total tasks based on stress level
+      const checklistItems = {
+        normal: 4,
+        medium: 5,
+        high: 4
+      };
+      setTotalTasks(checklistItems[stressLevel]);
+    };
+
+    loadCompletedTasks();
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token"); // Remove token from local storage
@@ -98,8 +260,7 @@ const HealthDashboard = () => {
       })() : "N/A",
     bloodCount: "9,873/ml",
     appointments: [
-      { type: "Breathing Exercises", date: "Dec 15, 2022", time: "10:30 am" },
-      { type: "Mental Wellness Session", date: "Dec 20, 2022", time: "8:30 am" }
+      { type: "Mental Wellness Session", date: "April 09, 2025", time: "9:00 am" }
     ],
     rehabilitationTasks: [
       { name: "Guided Breathing", frequency: "2 times per day", instruction: "Morning and evening" },
@@ -182,11 +343,8 @@ const HealthDashboard = () => {
           <button className="sidebar-menu-item" onClick={() => navigate('/stress-rehabilitation')}>
             <FileText size={24} />
           </button>
-          <button className="sidebar-menu-item">
-            <User size={24} />
-          </button>
-          <button className="sidebar-menu-item">
-            <Settings size={24} />
+          <button className="sidebar-menu-item" onClick={() => navigate('/checklist')}>
+            <CheckSquare size={24} />
           </button>
         </div>
         <button className="logout-button" onClick={handleLogout}>
@@ -286,78 +444,7 @@ const HealthDashboard = () => {
             </div>
           </div>
 
-          {/* Health Statistics */}
-          <div className="health-statistics">
-            <div className="statistics-header">
-              <h2 className="section-title">Stress Trends Over Time</h2>
-              <div className="trend-filters">
-                <button 
-                  className={`trend-filter ${activeTrend === 'Heart Rate' ? 'active' : ''}`}
-                  onClick={() => handleTrendFilterClick('Heart Rate')}
-                >
-                  Heart Rate
-                </button>
-                <button 
-                  className={`trend-filter ${activeTrend === 'SpO2' ? 'active' : ''}`}
-                  onClick={() => handleTrendFilterClick('SpO2')}
-                >
-                  SpO2
-                </button>
-                <button 
-                  className={`trend-filter ${activeTrend === 'Stress Level' ? 'active' : ''}`}
-                  onClick={() => handleTrendFilterClick('Stress Level')}
-                >
-                  Stress Level
-                </button>
-              </div>
-            </div>
-            {activeTrend !== 'Stress Level' && (
-              <div className="statistics-graph">
-                {/* SVG for the graph */}
-                <svg viewBox="0 0 400 100" className="graph-svg">
-                  <path
-                    d="M0,50 C20,40 40,80 60,70 C80,60 100,20 120,30 C140,40 160,90 180,80 C200,70 220,20 240,30 C260,40 280,60 300,50 C320,40 340,60 360,50 C380,40 400,50 400,50"
-                    fill="none"
-                    stroke="#4F46E5"
-                    strokeWidth="2"
-                  />
-                </svg>
-                
-                {/* X-axis labels */}
-                <div className="x-axis-labels">
-                  <span>Jan</span>
-                  <span>Feb</span>
-                  <span>Mar</span>
-                  <span>Apr</span>
-                  <span>May</span>
-                  <span>Jun</span>
-                  <span>Jul</span>
-                  <span>Aug</span>
-                  <span>Sep</span>
-                  <span>Oct</span>
-                  <span>Nov</span>
-                  <span>Dec</span>
-                </div>
-                
-                {/* Y-axis labels */}
-                <div className="y-axis-labels">
-                  <span>90</span>
-                  <span>80</span>
-                  <span>70</span>
-                  <span>60</span>
-                  <span>50</span>
-                  <span>40</span>
-                  <span>30</span>
-                  <span>20</span>
-                  <span>10</span>
-                  <span>0</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Stress Level Analysis - Only shown when Stress Level button is clicked */}
-          {showStressAnalysis && (
+          {/* Stress Level Analysis */}
             <div className={`stress-analysis ${showStressAnalysis ? 'show' : ''}`}>
               <div className="stress-header">
                 <h2 className="section-title">Stress Level Analysis</h2>
@@ -377,145 +464,75 @@ const HealthDashboard = () => {
                 </div>
               </div>
 
+            {/* Weekly Stress Statistics */}
+            <div className="weekly-stress-stats">
+              <h3>Weekly Stress Statistics</h3>
+              <div className="stats-container">
+                <div className="stat-item">
+                  <span className="stat-label">Current Status: {getStressStatus()}</span>
+                </div>
+                </div>
+              </div>
+
               <div className="stress-graph-container">
                 {/* Y-axis labels */}
                 <div className="stress-bars-wrapper">
                   <div className="stress-level-labels">
-                    <span>100%</span>
-                    <span>75%</span>
-                    <span>50%</span>
-                    <span>25%</span>
-                    <span>0%</span>
+                  <span>High</span>
+                  <span>Medium</span>
+                  <span>Normal</span>
                   </div>
+
+                {/* Add vertical axis line */}
+                <div className="stress-level-axis"></div>
 
                   {/* Stress level bars */}
                   <div className="stress-bars">
                     {activeTimePeriod === '24h' ? (
-                      <>
-                        {/* 24 hour view */}
-                        <div className="stress-bar low" style={{ height: '30%' }}></div>
-                        <div className="stress-bar low" style={{ height: '25%' }}></div>
-                        <div className="stress-bar low" style={{ height: '20%' }}></div>
-                        <div className="stress-bar moderate" style={{ height: '45%' }}></div>
-                        <div className="stress-bar moderate" style={{ height: '50%' }}></div>
-                        <div className="stress-bar moderate" style={{ height: '55%' }}></div>
-                        <div className="stress-bar moderate" style={{ height: '60%' }}></div>
-                        <div className="stress-bar high" style={{ height: '75%' }}></div>
-                        <div className="stress-bar high" style={{ height: '80%' }}></div>
-                        <div className="stress-bar high" style={{ height: '85%' }}></div>
-                        <div className="stress-bar high" style={{ height: '90%' }}></div>
-                        <div className="stress-bar high" style={{ height: '95%' }}></div>
-                        <div className="stress-bar high" style={{ height: '90%' }}></div>
-                        <div className="stress-bar high" style={{ height: '85%' }}></div>
-                        <div className="stress-bar high" style={{ height: '80%' }}></div>
-                        <div className="stress-bar moderate" style={{ height: '65%' }}></div>
-                        <div className="stress-bar moderate" style={{ height: '60%' }}></div>
-                        <div className="stress-bar moderate" style={{ height: '55%' }}></div>
-                        <div className="stress-bar low" style={{ height: '40%' }}></div>
-                        <div className="stress-bar low" style={{ height: '35%' }}></div>
-                        <div className="stress-bar low" style={{ height: '30%' }}></div>
-                        <div className="stress-bar low" style={{ height: '25%' }}></div>
-                        <div className="stress-bar low" style={{ height: '20%' }}></div>
-                        <div className="stress-bar low" style={{ height: '15%' }}></div>
-                      </>
-                    ) : (
-                      <>
-                        {/* 7 day view */}
-                        <div className="stress-bar moderate" style={{ height: '55%' }}></div>
-                        <div className="stress-bar high" style={{ height: '85%' }}></div>
-                        <div className="stress-bar moderate" style={{ height: '60%' }}></div>
-                        <div className="stress-bar low" style={{ height: '35%' }}></div>
-                        <div className="stress-bar moderate" style={{ height: '50%' }}></div>
-                        <div className="stress-bar high" style={{ height: '75%' }}></div>
-                        <div className="stress-bar low" style={{ height: '30%' }}></div>
-                      </>
+                    hourlyStressData.map((data, index) => (
+                      <div 
+                        key={index}
+                        className="stress-bar"
+                        style={{ 
+                          height: `${(data.stressPrediction?.prediction + 1) * 33.33}%`,
+                          backgroundColor: getStressLevelColor(data.stressPrediction?.prediction)
+                        }}
+                      ></div>
+                    ))
+                  ) : (
+                    weeklyStressData.map((data, index) => (
+                      <div 
+                        key={index}
+                        className={`stress-bar ${!data.hasData ? 'no-data' : ''}`}
+                        style={{ 
+                          height: data.hasData ? `${(data.stressLevel + 1) * 33.33}%` : '10%',
+                          backgroundColor: data.hasData ? getStressLevelColor(data.stressLevel) : '#e5e7eb'
+                        }}
+                      ></div>
+                    ))
                     )}
                   </div>
+
+                {/* Add horizontal axis line */}
+                <div className="stress-time-axis"></div>
 
                   {/* X-axis labels */}
                   <div className="stress-time-labels">
                     {activeTimePeriod === '24h' ? (
-                      <>
-                        <span>6 AM</span>
-                        <span>12 PM</span>
-                        <span>6 PM</span>
-                        <span>12 AM</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Mon</span>
-                        <span>Tue</span>
-                        <span>Wed</span>
-                        <span>Thu</span>
-                        <span>Fri</span>
-                        <span>Sat</span>
-                        <span>Sun</span>
-                      </>
-                    )}
-                  </div>
+                    hourlyStressData.map((data, index) => (
+                      <span key={index}>
+                        {new Date(data.createdAt).toLocaleTimeString([], { hour: '2-digit' })}
+                      </span>
+                    ))
+                  ) : (
+                    weeklyStressData.map((data, index) => (
+                      <span key={index} className={!data.hasData ? 'no-data' : ''}>
+                        {data.dayName}
+                      </span>
+                    ))
+                  )}
                 </div>
               </div>
-
-              {/* Activity Impact Chart */}
-              <div className="activity-impact">
-                <div className="activity-bars">
-                  <div className="activity-bar work"></div>
-                  <div className="activity-bar screen"></div>
-                  <div className="activity-bar mindfulness"></div>
-                  <div className="activity-bar work"></div>
-                  <div className="activity-bar screen"></div>
-                  <div className="activity-bar mindfulness"></div>
-                  <div className="activity-bar work"></div>
-                  <div className="activity-bar screen"></div>
-                  <div className="activity-bar mindfulness"></div>
-                  <div className="activity-bar work"></div>
-                  <div className="activity-bar screen"></div>
-                  <div className="activity-bar mindfulness"></div>
-                </div>
-                <div className="activity-legend">
-                  <div className="legend-item">
-                    <div className="legend-color work"></div>
-                    <span>Work</span>
-                  </div>
-                  <div className="legend-item">
-                    <div className="legend-color screen"></div>
-                    <span>Screen Time</span>
-                  </div>
-                  <div className="legend-item">
-                    <div className="legend-color mindfulness"></div>
-                    <span>Mindfulness</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Stress Summary */}
-              <div className="stress-summary">
-                <div className="summary-item">
-                  <span className="summary-label">High Stress Time</span>
-                  <span className="summary-value">3–5 PM</span>
-                </div>
-                <div className="summary-item">
-                  <span className="summary-label">Low Stress Time</span>
-                  <span className="summary-value">8–10 AM</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* AI Recommendations */}
-          <div className="ai-recommendations">
-            <h2 className="section-title">AI Recommendations</h2>
-            <div className="recommendations-list">
-              {userData.aiRecommendations.map((recommendation, index) => (
-                <div key={index} className="recommendation-item">
-                  <div className="recommendation-icon">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <p className="recommendation-text">{recommendation}</p>
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -579,28 +596,27 @@ const HealthDashboard = () => {
           </div>
         ))}
 
-        {/* Medications */}
-        <div className="medications-section">
+        {/* Replace medications section with progress circle */}
+        <div className="tasks-progress-section">
           <div className="section-header">
-            <h2 className="section-title">Daily Rehabilitation Tasks</h2>
-            <span className="view-all-link">View All</span>
+            <h2 className="section-title">Daily Tasks Progress</h2>
+            <span className="view-all-link" onClick={() => navigate('/checklist')}>View All</span>
           </div>
-
-          {userData.rehabilitationTasks.map((task, index) => (
-            <div key={index} className="medication-item">
-              <div className="medication-icon">
-                {index === 0 ? (
-                  <div className="pill-icon"></div>
-                ) : (
-                  <div className="capsule-icon"></div>
-                )}
-              </div>
-              <div className="medication-details">
-                <p className="medication-name">{task.name}</p>
-                <p className="medication-instruction">{`${task.frequency} · ${task.instruction}`}</p>
+          <div className="progress-circle-container">
+            <div 
+              className="progress-circle"
+              style={{
+                background: `conic-gradient(#4CAF50 ${(completedTasks.length / totalTasks) * 360}deg, #e5e7eb 0deg)`
+              }}
+            >
+              <div className="progress-circle-inner">
+                <span className="progress-text">
+                  {completedTasks.length}/{totalTasks}
+                </span>
+                <span className="progress-label">Tasks</span>
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
@@ -609,7 +625,11 @@ const HealthDashboard = () => {
         <div className="stress-notification" onClick={handleStressNotificationClick}>
           <div className="notification-content">
             <Bell size={20} />
-            <span>High stress level detected! Click here to view stress rehabilitation techniques.</span>
+            <span>
+              {patientData?.stressPrediction?.prediction === 2 
+                ? "High stress level detected! Click here to view stress rehabilitation techniques."
+                : "Your stress level is increasing. Consider taking a break and practicing relaxation techniques."}
+            </span>
           </div>
         </div>
       )}
