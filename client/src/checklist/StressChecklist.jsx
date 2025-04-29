@@ -50,36 +50,26 @@ const StressChecklist = () => {
           new Date(data.createdAt) >= oneWeekAgo
         );
 
-        // Group data by day and get the highest stress level for each day
+        // Count days with stress levels
         const stressDays = weeklyData.reduce((acc, data) => {
           const date = new Date(data.createdAt).toLocaleDateString();
           const stressLevel = data.stressPrediction?.prediction || 0;
-          // Keep the highest stress level for each day
-          if (!acc[date] || stressLevel > acc[date]) {
-            acc[date] = stressLevel;
+          if (stressLevel > 0 && !acc.includes(date)) {
+            acc.push(date);
           }
           return acc;
-        }, {});
-
-        // Count days with different stress levels
-        const stressLevelCounts = Object.values(stressDays).reduce((acc, level) => {
-          if (level === 2) acc.highStress++;
-          else if (level === 1) acc.mediumStress++;
-          return acc;
-        }, { highStress: 0, mediumStress: 0 });
+        }, []).length;
         
         // Determine weekly stress level based on the criteria
         let currentStressLevel = 'normal';
-        if (stressLevelCounts.highStress > 4) {
+        if (stressDays > 4) {
           currentStressLevel = 'high';
-        } else if (stressLevelCounts.mediumStress > 4) {
+        } else if (stressDays > 2) {
           currentStressLevel = 'medium';
         }
         
         setWeeklyStressLevel(currentStressLevel);
-        
-        console.log('Stress level counts:', stressLevelCounts);
-        console.log('Set stress level to:', currentStressLevel);
+        localStorage.setItem('weeklyStressLevel', currentStressLevel);
         
       } catch (err) {
         console.error('Failed to fetch weekly stress data:', err);

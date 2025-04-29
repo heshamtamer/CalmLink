@@ -98,8 +98,13 @@ const HealthDashboard = () => {
 
   // Function to get stress status based on weekly stats
   const getStressStatus = () => {
-    if (weeklyStressData.length > 0 && weeklyStressData[weeklyStressData.length - 1].stressLevel > 4) return "High Stress";
-    if (weeklyStressData.length > 0 && weeklyStressData[weeklyStressData.length - 1].stressLevel > 2) return "Normal Stress";
+    if (weeklyStressData.length === 0) return "Low Stress";
+
+    // Count days with stress levels
+    const stressDays = weeklyStressData.filter(day => day.hasData && day.stressLevel > 0).length;
+    
+    if (stressDays > 4) return "High Stress";
+    if (stressDays > 2) return "Medium Stress";
     return "Low Stress";
   };
 

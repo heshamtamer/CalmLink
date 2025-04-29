@@ -140,7 +140,7 @@ const StressRehabilitation = () => {
       {currentTechnique === -1 ? (
         <div className="start-screen">
           <h2>Welcome to Stress Rehabilitation</h2>
-          <p>This program will guide you through 4 techniques to help manage stress.</p>
+          <p>This program will guide you through 5 techniques to help manage stress.</p>
           <button className="start-button" onClick={() => startTechnique(0)}>
             Start Program
           </button>
