@@ -77,11 +77,6 @@ Ideal for:
 
 ---
 
-## 🧪 Demo
-
-> Coming soon — model integration & live alerts.
-
----
 
 ## 👥 Contributors
 
@@ -90,14 +85,6 @@ Ideal for:
 - [Yassmin Sayed](https://github.com/yassmin2000)
 - [Farah Ossama](https://github.com/fou65)
 - [Rana Ibrahim](https://github.com/RanaEssawy)
-
----
-
-## 📃 License
-
-This project is licensed under the MIT License.
-
----
 
 
 
